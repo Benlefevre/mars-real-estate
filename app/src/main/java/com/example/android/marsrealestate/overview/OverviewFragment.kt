@@ -21,7 +21,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.android.marsrealestate.R
 import com.example.android.marsrealestate.databinding.FragmentOverviewBinding
@@ -36,7 +36,7 @@ class OverviewFragment : Fragment() {
      * Lazily initialize our [OverviewViewModel].
      */
     private val viewModel: OverviewViewModel by lazy {
-        ViewModelProviders.of(this).get(OverviewViewModel::class.java)
+        ViewModelProvider(this).get(OverviewViewModel::class.java)
     }
 
     /**
@@ -48,21 +48,21 @@ class OverviewFragment : Fragment() {
         val binding = FragmentOverviewBinding.inflate(inflater)
 
         // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
-        binding.setLifecycleOwner(this)
+        binding.lifecycleOwner = this
 
         // Giving the binding access to the OverviewViewModel
         binding.viewModel = viewModel
 
         // Sets the adapter of the photosGrid RecyclerView with clickHandler lambda that
         // tells the viewModel when our property is clicked
-        binding.photosGrid.adapter = PhotoGridAdapter(PhotoGridAdapter.OnClickListener {
+        binding.photosGrid.adapter = PhotoGridAdapter(PhotoGridAdapter.OnCLickListener {
             viewModel.displayPropertyDetails(it)
         })
 
         // Observe the navigateToSelectedProperty LiveData and Navigate when it isn't null
         // After navigating, call displayPropertyDetailsComplete() so that the ViewModel is ready
         // for another navigation event.
-        viewModel.navigateToSelectedProperty.observe(this, Observer {
+        viewModel.navigateToSelectedProperty.observe(viewLifecycleOwner, Observer {
             if ( null != it ) {
                 // Must find the NavController from the Fragment
                 this.findNavController().navigate(OverviewFragmentDirections.actionShowDetail(it))

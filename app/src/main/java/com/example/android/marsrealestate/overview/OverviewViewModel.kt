@@ -20,12 +20,10 @@ package com.example.android.marsrealestate.overview
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.android.marsrealestate.network.MarsApi
 import com.example.android.marsrealestate.network.MarsApiFilter
 import com.example.android.marsrealestate.network.MarsProperty
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 enum class MarsApiStatus { LOADING, ERROR, DONE }
@@ -56,11 +54,13 @@ class OverviewViewModel : ViewModel() {
     val navigateToSelectedProperty: LiveData<MarsProperty>
         get() = _navigateToSelectedProperty
 
-    // Create a Coroutine scope using a job to be able to cancel when needed
-    private var viewModelJob = Job()
 
-    // the Coroutine runs using the Main (UI) dispatcher
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+//    Replace by viewModelScope in the last lifecycle library
+//    // Create a Coroutine scope using a job to be able to cancel when needed
+//    private var viewModelJob = Job()
+//
+//    // the Coroutine runs using the Main (UI) dispatcher
+//    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     /**
      * Call getMarsRealEstateProperties() on init so we can display status immediately.
@@ -75,15 +75,14 @@ class OverviewViewModel : ViewModel() {
      * coroutine Deferred, which we await to get the result of the transaction.
      */
     private fun getMarsRealEstateProperties(filter: MarsApiFilter) {
-        coroutineScope.launch {
+        viewModelScope.launch{
             // Get the Deferred object for our Retrofit request
-            var getPropertiesDeferred = MarsApi.retrofitService.getProperties(filter.value)
+            val getPropertiesDeferred = MarsApi.retrofitService.getProperties(filter.value)
             try {
                 _status.value = MarsApiStatus.LOADING
                 // this will run on a thread managed by Retrofit
-                val listResult = getPropertiesDeferred.await()
                 _status.value = MarsApiStatus.DONE
-                _properties.value = listResult
+                _properties.value = getPropertiesDeferred
             } catch (e: Exception) {
                 _status.value = MarsApiStatus.ERROR
                 _properties.value = ArrayList()
@@ -97,7 +96,7 @@ class OverviewViewModel : ViewModel() {
      */
     override fun onCleared() {
         super.onCleared()
-        viewModelJob.cancel()
+//        viewModelJob.cancel()
     }
 
     /**

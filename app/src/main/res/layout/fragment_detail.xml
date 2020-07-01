@@ -47,7 +47,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:src="@tools:sample/backgrounds/scenic"
-                app:imageUrl="@{viewModel.selectedProperty.imgSrcUrl}"/>
+                android:contentDescription="@string/photo_of_mars_taken_by_nasa" />
 
             <TextView
                 android:id="@+id/property_type_text"
@@ -59,8 +59,7 @@
                 android:textSize="39sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/main_photo_image"
-                tools:text="To Rent"
-                android:text="@{viewModel.displayPropertyType}"/>
+                tools:text="To Rent" />
 
             <TextView
                 android:id="@+id/price_value_text"
@@ -72,8 +71,7 @@
                 android:textSize="20sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/property_type_text"
-                tools:text="$100,000"
-                android:text="@{viewModel.displayPropertyPrice}"/>
+                tools:text="$100,000" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

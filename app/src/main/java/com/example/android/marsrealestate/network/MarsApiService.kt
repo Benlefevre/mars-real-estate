@@ -17,7 +17,6 @@
 
 package com.example.android.marsrealestate.network
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.Deferred
@@ -44,7 +43,6 @@ private val moshi = Moshi.Builder()
  */
 private val retrofit = Retrofit.Builder()
         .addConverterFactory(MoshiConverterFactory.create(moshi))
-        .addCallAdapterFactory(CoroutineCallAdapterFactory())
         .baseUrl(BASE_URL)
         .build()
 
@@ -59,9 +57,8 @@ interface MarsApiService {
      * HTTP method
      */
     @GET("realestate")
-    fun getProperties(@Query("filter") type : String):
-    // The Coroutine Call Adapter allows us to return a Deferred, a Job with a result
-            Deferred<List<MarsProperty>>
+    suspend fun getProperties(@Query("filter") type: String):
+            List<MarsProperty>
 }
 
 /**
