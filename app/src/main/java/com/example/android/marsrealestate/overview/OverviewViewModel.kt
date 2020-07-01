@@ -27,17 +27,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-enum class MarsApiStatus{ LOADING, ERROR, DONE}
+enum class MarsApiStatus { LOADING, ERROR, DONE }
 
 /**
  * The [ViewModel] that is attached to the [OverviewFragment].
  */
 class OverviewViewModel : ViewModel() {
 
-    // The internal MutableLiveData String that stores the most recent response status
+    // The internal MutableLiveData that stores the status of the most recent request
     private val _status = MutableLiveData<MarsApiStatus>()
 
-    // The external immutable LiveData for the status String
+    // The external immutable LiveData for the request status
     val status: LiveData<MarsApiStatus>
         get() = _status
 
@@ -49,11 +49,15 @@ class OverviewViewModel : ViewModel() {
     val properties: LiveData<List<MarsProperty>>
         get() = _properties
 
+    private val _navigateToSelectedProperty = MutableLiveData<MarsProperty>()
+    val navigateToSelectedProperty: LiveData<MarsProperty>
+        get() = _navigateToSelectedProperty
+
     // Create a Coroutine scope using a job to be able to cancel when needed
     private var viewModelJob = Job()
 
     // the Coroutine runs using the Main (UI) dispatcher
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main )
+    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     /**
      * Call getMarsRealEstateProperties() on init so we can display status immediately.
@@ -64,8 +68,8 @@ class OverviewViewModel : ViewModel() {
 
     /**
      * Gets Mars real estate property information from the Mars API Retrofit service and updates the
-     * [MarsProperty] [List] [LiveData]. The Retrofit service returns a coroutine Deferred, which we
-     * await to get the result of the transaction.
+     * [MarsProperty] [List] and [MarsApiStatus] [LiveData]. The Retrofit service returns a
+     * coroutine Deferred, which we await to get the result of the transaction.
      */
     private fun getMarsRealEstateProperties() {
         coroutineScope.launch {
@@ -79,7 +83,7 @@ class OverviewViewModel : ViewModel() {
                 _properties.value = listResult
             } catch (e: Exception) {
                 _status.value = MarsApiStatus.ERROR
-                _properties.value = mutableListOf()
+                _properties.value = ArrayList()
             }
         }
     }
@@ -91,5 +95,13 @@ class OverviewViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
+    }
+
+    fun displayPropertyDetails(marsProperty: MarsProperty){
+        _navigateToSelectedProperty.value = marsProperty
+    }
+
+    fun displayPropertyDetailsComplete(){
+        _navigateToSelectedProperty.value = null
     }
 }
